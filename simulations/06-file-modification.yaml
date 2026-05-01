@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: file-modification
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    command: ["/bin/sh", "-c"]
+    args: ["echo 'testuser:x:1000:1000::/home/testuser:/bin/sh' >> /etc/passwd; sleep infinity"]

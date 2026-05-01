@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: suspicious-network
+spec:
+  containers:
+  - name: ubuntu
+    image: ubuntu
+    command: ["/bin/sh", "-c"]
+    args: ["apt-get update && apt-get install -y netcat-openbsd && nc -z 8.8.8.8 53; sleep infinity"]

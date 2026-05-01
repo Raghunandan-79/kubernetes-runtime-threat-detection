@@ -1,0 +1,85 @@
+customRules:
+  my_rules.yaml: |-
+    # 1. Shell access inside containers
+    - rule: Terminal shell in container
+      desc: A shell was used as the entrypoint/exec point into a container with an attached terminal.
+      condition: >
+        spawned_process and container
+        and shell_procs and proc.tty != 0
+        and container.image.repository != "falcosecurity/falco"
+      output: >
+        A shell was spawned in a container with an attached terminal (user=%user.name user_loginuid=%user.loginuid shell=%proc.name parent=%proc.pname cmdline=%proc.cmdline terminal=%proc.tty)
+      priority: WARNING
+      tags: [container, shell, mitre_execution]
+
+    # 2. Privileged container execution
+    - rule: Custom Launch Privileged Container
+      desc: Detect the initial process started in a privileged container.
+      condition: >
+        spawned_process and container
+        and container.privileged=true
+        and container.image.repository != "falcosecurity/falco"
+        and container.image.repository != "kindnetd"
+        and container.image.repository != "kube-proxy"
+      output: >
+        Privileged container launched (user=%user.name user_loginuid=%user.loginuid command=%proc.cmdline image=%container.image.repository:%container.image.tag)
+      priority: WARNING
+      tags: [container, privileged, mitre_privilege_escalation]
+
+    # 3. Access to sensitive files like /etc/shadow
+    - rule: Read Sensitive File Untrusted
+      desc: An attempt to read any sensitive file (e.g. files containing user/password/authentication info).
+      condition: >
+        open_read and sensitive_files and container
+        and not container.image.repository in ("falcosecurity/falco")
+      output: >
+        Sensitive file opened for reading by non-trusted program (user=%user.name user_loginuid=%user.loginuid command=%proc.cmdline file=%fd.name)
+      priority: WARNING
+      tags: [host, container, filesystem, mitre_credential_access]
+
+    # 4. Suspicious outbound network connections
+    - rule: Suspicious Outbound Connection
+      desc: Detect outbound connection to unexpected port or by unexpected tool
+      condition: >
+        outbound and container
+        and proc.name in (netcat_procs, curl, wget)
+        and container.image.repository != "falcosecurity/falco"
+      output: >
+        Suspicious network connection from container (user=%user.name user_loginuid=%user.loginuid command=%proc.cmdline connection=%fd.name)
+      priority: WARNING
+      tags: [network, container, mitre_command_and_control]
+
+    # 5. Container escape attempts (host filesystem access)
+    - rule: Container Host Filesystem Mount
+      desc: Detect a container accessing the host filesystem (typically mounted at /host)
+      condition: >
+        (open_read or open_write) and container and fd.name startswith "/host"
+        and container.image.repository != "falcosecurity/falco"
+        and container.image.repository != "kindnetd"
+        and container.image.repository != "kube-proxy"
+        and container.image.repository != "local-path-provisioner"
+      output: >
+        Container accessing host filesystem (user=%user.name user_loginuid=%user.loginuid command=%proc.cmdline file=%fd.name)
+      priority: WARNING
+      tags: [container, host, filesystem, mitre_privilege_escalation]
+
+    # 6. Modification of critical files like /etc/passwd
+    - rule: Write below etc
+      desc: an attempt to write to any file below /etc
+      condition: >
+        open_write and fd.directory = /etc and container
+      output: >
+        File below /etc opened for writing (user=%user.name user_loginuid=%user.loginuid command=%proc.cmdline file=%fd.name)
+      priority: WARNING
+      tags: [filesystem, container, mitre_persistence]
+
+    # 7. Execution of unexpected binaries inside containers
+    - rule: Unexpected Binary Execution
+      desc: Detect execution of a binary not typically found in the base image (e.g., placed in /tmp)
+      condition: >
+        spawned_process and container
+        and (proc.exepath startswith "/tmp/" or proc.exepath startswith "/dev/shm/")
+      output: >
+        Unexpected binary executed from writable directory (user=%user.name user_loginuid=%user.loginuid command=%proc.cmdline path=%proc.exepath)
+      priority: WARNING
+      tags: [container, mitre_execution]
