@@ -75,7 +75,19 @@ This project includes the Falcosidekick Web UI to visualize security events in a
 ```bash
 kubectl port-forward svc/falco-falcosidekick-ui -n falco-system 2802:2802
 ```
-Then open your browser and navigate to: http://localhost:2802
+Then open your browser and navigate to: http://localhost:2802 (Default login: `admin` / `admin`)
+
+---
+
+## ⚡ Quick Start Scripts
+
+To make testing easier, this project includes three automated bash scripts:
+
+1. **`./setup.sh`**: Creates the kind cluster, installs the Falco Helm chart, enables the Falcosidekick UI, and waits for all pods to be ready.
+2. **`./start-dashboard.sh`**: Automatically sets up the port-forwarding for the Falcosidekick UI so you don't have to remember the exact `kubectl` command.
+3. **`./simulate-attacks.sh`**: Automatically deploys all the YAML attack manifests in sequence so you can watch your dashboard light up without copying and pasting each command manually.
+
+*Note: You may need to make them executable first by running `chmod +x *.sh`.*
 
 ---
 
