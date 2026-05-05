@@ -1,5 +1,6 @@
 # Kubernetes Runtime Threat Detection with Falco
 
+
 This project demonstrates a real-time Kubernetes runtime threat detection system using **Falco** deployed as a DaemonSet within a local **kind** cluster. It detects common container security threats, leveraging eBPF (Extended Berkeley Packet Filter) to trace system calls and evaluate them against custom security rules.
 
 ## Project Goals
