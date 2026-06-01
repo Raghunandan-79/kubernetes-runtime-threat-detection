@@ -43,6 +43,14 @@ resource "aws_security_group" "my_group" {
     description = "Notes App"
   }
 
+  ingress {
+    from_port   = 2802
+    to_port     = 2802
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Falco Dashboard"
+  }
+
   # outbount rules
   egress {
     from_port   = 0
