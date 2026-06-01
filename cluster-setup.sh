@@ -1,6 +1,8 @@
 #!/bin/bash
 echo "🚀 Setting up Kubernetes Runtime Threat Detection Environment..."
 
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+
 echo "----------------------------------------"
 echo "[1/4] Creating kind cluster..."
 kind create cluster --config cluster/kind-config.yaml
