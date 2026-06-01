@@ -1,0 +1,12 @@
+# extras
+.qodo
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# SSH Keys
+*-key*
+*.pem
